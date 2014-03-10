@@ -4,6 +4,8 @@ var ticTacToe = {
   positionsTaken: [],
   player1: [],
   player2: [],
+  winner: null,
+  message: null,
   winningConditions: [[11, 12, 13]
     , [21,22,23]
     , [31,32,33]
@@ -14,19 +16,24 @@ var ticTacToe = {
     , [13,22,31]
   ],
   play: function () {
+    this.setMessage(null);
     if (!this.endGame) {
       var move = parseInt($("#player" + this.playerTurn).val());
-      this.hasWinner(player1);
-      if ($.inArray(move, this.positionsTaken) == -1) {
-        this.playerTurn == 1 ? this.player1.push(move) : this.player2.push(move);
-        this.playerTurn = this.playerTurn == 1 ? 2 : 1;
-        this.positionsTaken.push(move);
+      if (this.validMove(move)) {
+        if (this.hasWon(this.playerMove(move))) {
+          this.setMessage("The player " + this.winner + " wins!");
+          this.endGame = true;
+        } else {
+          this.positionsTaken.push(move);
+        }
       } else {
-        console.log('This move has already been played.');
+        this.setMessage('This move has already been played.');
       }
+    } else {
+      this.setMessage('The game has ended and player ' + this.winner + ' won the game!')
     }
   },
-  hasWinner: function(player) {
+  hasWon: function(player) {
     for (var i in this.winningConditions) {
       var items = this.winningConditions[i];
       var countItems = 0;
@@ -39,6 +46,31 @@ var ticTacToe = {
         return true;
       }
     };
+    this.winner = this.playerTurn;
     return false;
+  },
+  validMove: function(move) {
+    // The move isn't in the list of played moves
+    if ($.inArray(move, this.positionsTaken) == -1) {
+      return true;
+    }
+  },
+  playerMove: function(move) {
+    var player = {};
+
+    if (this.playerTurn == 1) {
+      this.playerTurn = 2;
+      player = this.player1;
+    } else {
+      this.playerTurn = 1;
+      player = this.player2;
+    }
+
+    player.push(move);
+    return player;
+  },
+  setMessage: function(message) {
+    console.log(message);
+    this.message = message;
   }
 }
